@@ -4,9 +4,6 @@ import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
 export async function generateCoverLetter(data) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
@@ -14,24 +11,26 @@ export async function generateCoverLetter(data) {
   const user = await db.user.findUnique({
     where: { clerkUserId: userId },
   });
-
   if (!user) throw new Error("User not found");
 
+  if (!process.env.GEMINI_API_KEY) {
+    console.error("Missing GEMINI_API_KEY in environment");
+    throw new Error("Gemini API key not found in environment variables");
+  }
+
   const prompt = `
-    Write a professional cover letter for a ${data.jobTitle} position at ${
-    data.companyName
-  }.
-    
-    About the candidate:
-    - Industry: ${user.industry}
-    - Years of Experience: ${user.experience}
-    - Skills: ${user.skills?.join(", ")}
-    - Professional Background: ${user.bio}
-    
-    Job Description:
-    ${data.jobDescription}
-    
-    Guidelines:
+Write a professional cover letter for a ${data.jobTitle} position at ${data.companyName}.
+
+About the candidate:
+- Industry: ${user.industry}
+- Years of Experience: ${user.experience}
+- Skills: ${user.skills?.join(", ")}
+- Professional Background: ${user.bio}
+
+Job Description:
+${data.jobDescription}
+
+Guidelines:
 1. Use a confident, enthusiastic, and professional tone.
 2. Highlight the candidate's most relevant skills and achievements.
 3. Show clear understanding of the company's goals and needs.
@@ -44,9 +43,14 @@ Output the cover letter in clean markdown format, ready to copy and use.
 `;
 
   try {
+    // Initialize Gemini inside the function to avoid undefined env issues
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
     const result = await model.generateContent(prompt);
     const content = result.response.text().trim();
 
+    // Save cover letter in database
     const coverLetter = await db.coverLetter.create({
       data: {
         content,
@@ -60,11 +64,14 @@ Output the cover letter in clean markdown format, ready to copy and use.
 
     return coverLetter;
   } catch (error) {
-    console.error("Error generating cover letter:", error.message);
+    console.error("Error generating cover letter:", error.message || error);
     throw new Error("Failed to generate cover letter");
   }
 }
 
+/**
+ * Get all cover letters for the authenticated user
+ */
 export async function getCoverLetters() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
@@ -72,19 +79,17 @@ export async function getCoverLetters() {
   const user = await db.user.findUnique({
     where: { clerkUserId: userId },
   });
-
   if (!user) throw new Error("User not found");
 
   return await db.coverLetter.findMany({
-    where: {
-      userId: user.id,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
+    where: { userId: user.id },
+    orderBy: { createdAt: "desc" },
   });
 }
 
+/**
+ * Get a single cover letter by ID
+ */
 export async function getCoverLetter(id) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
@@ -92,7 +97,6 @@ export async function getCoverLetter(id) {
   const user = await db.user.findUnique({
     where: { clerkUserId: userId },
   });
-
   if (!user) throw new Error("User not found");
 
   return await db.coverLetter.findUnique({
@@ -103,6 +107,9 @@ export async function getCoverLetter(id) {
   });
 }
 
+/**
+ * Delete a cover letter by ID
+ */
 export async function deleteCoverLetter(id) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
@@ -110,7 +117,6 @@ export async function deleteCoverLetter(id) {
   const user = await db.user.findUnique({
     where: { clerkUserId: userId },
   });
-
   if (!user) throw new Error("User not found");
 
   return await db.coverLetter.delete({

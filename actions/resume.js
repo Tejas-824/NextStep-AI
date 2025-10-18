@@ -5,9 +5,6 @@ import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { revalidatePath } from "next/cache";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
 export async function saveResume(content) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
@@ -70,8 +67,13 @@ export async function improveWithAI({ current, type }) {
 
   if (!user) throw new Error("User not found");
 
+  if (!process.env.GEMINI_API_KEY) {
+    console.error("Missing GEMINI_API_KEY in environment");
+    throw new Error("Gemini API key not found in environment variables");
+  }
+
   const prompt = `
-As an expert resume writer, enhance the following ${type} description for a ${user.industry} professional. 
+As an expert resume writer, enhance the following ${type} description for a ${user.industry || "general"} professional. 
 Make it impactful, results-oriented, and aligned with industry standards. 
 Current content: "${current}"
 
@@ -85,11 +87,13 @@ Guidelines:
 Format the improved description as a single paragraph, without any extra text or explanations.
 `;
 
-
   try {
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
     const result = await model.generateContent(prompt);
-    const response = result.response;
-    const improvedContent = response.text().trim();
+    const improvedContent = result.response.text().trim();
+
     return improvedContent;
   } catch (error) {
     console.error("Error improving content:", error);

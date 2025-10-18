@@ -105,11 +105,15 @@ export default function CoverLetterGenerator() {
               )}
             </div>
 
-            <div className="flex justify-end">
-              <Button type="submit" disabled={generating} className="px-6">
+            <div className="flex flex-col sm:flex-row justify-end w-full">
+              <Button
+                type="submit"
+                disabled={generating}
+                className="w-full sm:w-auto px-6 bg-black text-white hover:bg-gray-800 flex items-center justify-center gap-2"
+              >
                 {generating ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                     Generating Letter...
                   </>
                 ) : (

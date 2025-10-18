@@ -84,11 +84,11 @@ export default function ResumeBuilder({ initialContent }) {
   const getContactMarkdown = () => {
     const { contactInfo } = formValues;
     const parts = [];
-    if (contactInfo.email) parts.push(`📧 ${contactInfo.email}`);
-    if (contactInfo.mobile) parts.push(`📱 ${contactInfo.mobile}`);
+    if (contactInfo.email) parts.push(`${contactInfo.email}`);
+    if (contactInfo.mobile) parts.push(`${contactInfo.mobile}`);
     if (contactInfo.linkedin)
-      parts.push(`💼 [LinkedIn](${contactInfo.linkedin})`);
-    if (contactInfo.twitter) parts.push(`🐦 [Twitter](${contactInfo.twitter})`);
+      parts.push(`[LinkedIn](${contactInfo.linkedin})`);
+    if (contactInfo.twitter) parts.push(`[Twitter](${contactInfo.twitter})`);
 
     return parts.length > 0
       ? `## <div align="center">${user.fullName}</div>
@@ -147,50 +147,68 @@ export default function ResumeBuilder({ initialContent }) {
   };
 
   return (
-    <div data-color-mode="light" className="space-y-4">
-      <div className="flex flex-col md:flex-row justify-between items-center gap-2">
-        <h1 className="font-bold gradient-title text-5xl md:text-6xl">
-          Resume Builder
-        </h1>
-        <div className="space-x-2">
-          <Button
-            variant="destructive"
-            onClick={handleSubmit(onSubmit)}
-            disabled={isSaving}
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4" />
-                Save
-              </>
-            )}
-          </Button>
-          <Button onClick={generatePDF} disabled={isGenerating}>
-            {isGenerating ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Generating PDF...
-              </>
-            ) : (
-              <>
-                <Download className="h-4 w-4" />
-                Download PDF
-              </>
-            )}
-          </Button>
-        </div>
+    <div data-color-mode="light" className="space-y-4 px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+         <h1 className="font-bold gradient-title text-4xl sm:text-5xl md:text-6xl text-center md:text-left">
+      Resume Builder
+    </h1>
+      <div className="flex flex-wrap justify-center md:justify-start gap-2">
+      {/* Save Button */}
+      <Button
+        className="bg-black text-white hover:bg-gray-800 flex items-center justify-center px-4 py-2 min-w-[120px]"
+        onClick={handleSubmit(onSubmit)}
+        disabled={isSaving}
+      >
+    {isSaving ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Saving...
+          </>
+        ) : (
+          <>
+            <Save className="h-4 w-4 mr-2" />
+            Save
+          </>
+        )}
+      </Button>
+
+   <Button
+        className="bg-black text-white hover:bg-gray-800 flex items-center justify-center px-4 py-2 min-w-[160px]"
+        onClick={generatePDF}
+        disabled={isGenerating}
+      >
+        {isGenerating ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            Generating PDF...
+          </>
+        ) : (
+          <>
+            <Download className="h-4 w-4 mr-2" />
+            Download PDF
+          </>
+        )}
+      </Button>
+</div>
+
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="edit">Form</TabsTrigger>
-          <TabsTrigger value="preview">Markdown</TabsTrigger>
-        </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+  {/* Tabs header */}
+  <TabsList className="flex flex-wrap sm:flex-nowrap justify-center sm:justify-start gap-2 w-full border-b border-gray-300">
+    <TabsTrigger
+      value="edit"
+      className="flex-1 sm:flex-auto text-center py-2 px-4 sm:px-6 rounded-t-md"
+    >
+      Form
+    </TabsTrigger>
+    <TabsTrigger
+      value="preview"
+      className="flex-1 sm:flex-auto text-center py-2 px-4 sm:px-6 rounded-t-md"
+    >
+      Markdown
+    </TabsTrigger>
+  </TabsList>
 
         <TabsContent value="edit">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
@@ -203,7 +221,7 @@ export default function ResumeBuilder({ initialContent }) {
                   <Input
                     {...register("contactInfo.email")}
                     type="email"
-                    placeholder="your@email.com"
+                    placeholder="Enter your email"
                     error={errors.contactInfo?.email}
                   />
                   {errors.contactInfo?.email && (
@@ -217,7 +235,7 @@ export default function ResumeBuilder({ initialContent }) {
                   <Input
                     {...register("contactInfo.mobile")}
                     type="tel"
-                    placeholder="+1 234 567 8900"
+                    placeholder="Enter your number"
                   />
                   {errors.contactInfo?.mobile && (
                     <p className="text-sm text-red-500">
@@ -239,20 +257,20 @@ export default function ResumeBuilder({ initialContent }) {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    Twitter/X Profile
-                  </label>
-                  <Input
-                    {...register("contactInfo.twitter")}
-                    type="url"
-                    placeholder="https://twitter.com/your-handle"
-                  />
-                  {errors.contactInfo?.twitter && (
-                    <p className="text-sm text-red-500">
-                      {errors.contactInfo.twitter.message}
-                    </p>
-                  )}
-                </div>
+  <label className="text-sm font-medium">
+    GitHub
+  </label>
+  <Input
+    {...register("contactInfo.github")}
+    type="url"
+    placeholder="https://github.com/your-username"
+  />
+  {errors.contactInfo?.github && (
+    <p className="text-sm text-red-500">
+      {errors.contactInfo.github.message}
+    </p>
+  )}
+</div>
               </div>
             </div>
 
@@ -389,7 +407,7 @@ export default function ResumeBuilder({ initialContent }) {
             <div className="flex p-3 gap-2 items-center border-2 border-yellow-600 text-yellow-600 rounded mb-2">
               <AlertTriangle className="h-5 w-5" />
               <span className="text-sm">
-                You will lose editied markdown if you update the form data.
+             Updating the form data will overwrite any edits made to the markdown.
               </span>
             </div>
           )}

@@ -25,6 +25,7 @@ export default async function Header() {
   return (
     <header className="fixed top-0 w-full border-b bg-background/80 backdrop-blur-md z-50 supports-[backdrop-filter]:bg-background/60">
       <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
+        {/* Logo */}
         <Link href="/">
           <Image
             src={"/logo.png"}
@@ -39,7 +40,8 @@ export default async function Header() {
         {/* Action Buttons */}
         <div className="flex items-center space-x-2 md:space-x-4">
           <SignedIn>
-            <Link href="/dashboard">
+            {/* Dashboard Button */}
+            <Link href="/dashboard" className="flex items-center gap-2">
               <Button
                 variant="outline"
                 className="hidden md:inline-flex items-center gap-2"
@@ -53,46 +55,57 @@ export default async function Header() {
             </Link>
 
             {/* Growth Tools Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button className="flex items-center gap-2">
-                  <StarsIcon className="h-4 w-4" />
-                  <span className="hidden md:block">Growth Tools</span>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem asChild>
-                  <Link href="/resume" className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    Resume Lab
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    href="/ai-cover-letter"
-                    className="flex items-center gap-2"
-                  >
-                    <PenBox className="h-4 w-4" />
-                    Cover Letter
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/interview" className="flex items-center gap-2">
-                    <GraduationCap className="h-4 w-4" />
-                    Interview IQ
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="relative">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="flex items-center gap-2">
+                    <StarsIcon className="h-4 w-4" />
+                    <span className="hidden md:block">Growth Tools</span>
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent
+                  align="end"
+                  className="w-48 bg-black text-white shadow-lg rounded-md"
+                >
+                  <DropdownMenuItem asChild>
+                    <Link href="/resume" className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Resume Lab
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/ai-cover-letter"
+                      className="flex items-center gap-2"
+                    >
+                      <PenBox className="h-4 w-4" />
+                      Cover Letter
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/interview"
+                      className="flex items-center gap-2"
+                    >
+                      <GraduationCap className="h-4 w-4" />
+                      Interview IQ
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </SignedIn>
 
+          {/* Sign In Button */}
           <SignedOut>
             <SignInButton>
               <Button variant="outline">Sign In</Button>
             </SignInButton>
           </SignedOut>
 
+          {/* User Avatar */}
           <SignedIn>
             <UserButton
               appearance={{
@@ -102,7 +115,7 @@ export default async function Header() {
                   userPreviewMainIdentifier: "font-semibold",
                 },
               }}
-             fallbackRedirectUrl="/"
+              fallbackRedirectUrl="/"
             />
           </SignedIn>
         </div>
